@@ -1,5 +1,5 @@
 {
-  "name": "im-back",
+  "name": "chatroom-server",
   "version": "1.0.3",
   "description": "",
   "main": "bin/cli.js",

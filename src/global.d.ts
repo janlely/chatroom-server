@@ -38,8 +38,9 @@ declare global {
         username: string
         roomId: string,
     }
-    var user_wsconnections: Map<UserRoom, WebSocket>
-    var room_clients: Map<string, WebSocket[]>
+    var user_wsconnections: Map<UserRoom, string>
+    var room_clients: Map<string, string[]>
+    var all_clients: Map<string, WebSocket>
 
 
     const cookie_secret = "123456"
@@ -52,6 +53,7 @@ declare module 'ws' {
   interface WebSocket {
     username?: string
     roomId?: string
+    uuid: string
   }
 }
 

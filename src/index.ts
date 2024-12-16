@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser"
 import login from "./login"
 import chat from "./chat"
 import * as common from "./common"
+import { v4 as uuidv4 } from 'uuid';
 // import { emit } from "process";
 
 dotenv.config();
@@ -58,11 +59,18 @@ wss.on('connection', async (ws: WebSocket, req: WebSocketRequest) => {
     return
   }
 
+  const uuid = uuidv4()
   ws.username = username
+  ws.uuid = uuid
   ws.roomId = new URL(req.url!, `http://${req.headers.host}`).search.substring(1) 
-  global.user_wsconnections.set({username: ws.username!, roomId: ws.roomId!}, ws)
-  if (!global.room_clients.has(ws.roomId!)) {global.room_clients.set(ws.roomId!, [])}
-  global.room_clients.get(ws.roomId!)!.push(ws)
+  global.all_clients.set(uuid, ws)
+  global.user_wsconnections.set({username: ws.username!, roomId: ws.roomId!}, uuid)
+  if (!global.room_clients.has(ws.roomId!)) {
+    console.log(`new room created: ${ws.roomId}`)
+    global.room_clients.set(ws.roomId!, new Array<string>())
+  }
+  global.room_clients.get(ws.roomId!)!.push(uuid)
+  console.log(`room_clients: ${global.room_clients.size}`)
   console.log(`WebSocket 连接已建立, username: ${ws.username}, roomId: ${ws.roomId}`)
 
   // 处理 WebSocket 消息
@@ -97,6 +105,7 @@ global.user_data = [
 global.user_session = new Map()
 global.user_wsconnections = new Map()
 global.room_clients = new Map()
+global.all_clients = new Map()
 
 server.listen(port, () => {
   console.log(`服务器已启动，监听端口 ${port}`)

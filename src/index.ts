@@ -110,15 +110,6 @@ wss.on('connection', async (ws: WebSocket, req: WebSocketRequest) => {
 
 
 
-
-global.user_data = [
-    {username : "janlely", password: "1qaz@wsx", email: "janlely@163.com"},
-    {username : "jnabo", password: "1qaz@wsx", email: "jnabo@163.com"},
-    {username : "jason", password: "1qaz@wsx", email: "jason@163.com"},
-    {username : "jacobo", password: "1qaz@wsx", email: "jacobo@163.com"},
-    {username : "jqqq", password: "1qaz@wsx", email: "jqqq@163.com"},
-]
-
 global.user_session = new Map()
 global.user_wsconnections = new Map()
 global.room_clients = new Map()

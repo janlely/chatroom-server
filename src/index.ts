@@ -62,16 +62,31 @@ wss.on('connection', async (ws: WebSocket, req: WebSocketRequest) => {
   const uuid = uuidv4()
   ws.username = username
   ws.uuid = uuid
-  ws.roomId = new URL(req.url!, `http://${req.headers.host}`).search.substring(1) 
+  ws.roomId = new URL(req.url!, `http://${req.headers.host}`).search.substring(1)
   global.all_clients.set(uuid, ws)
   global.user_wsconnections.set({username: ws.username!, roomId: ws.roomId!}, uuid)
   if (!global.room_clients.has(ws.roomId!)) {
     console.log(`new room created: ${ws.roomId}`)
     global.room_clients.set(ws.roomId!, new Array<string>())
   }
-  global.room_clients.get(ws.roomId!)!.push(uuid)
-  console.log(`room_clients: ${global.room_clients.size}`)
+  console.log(`use add into room: ${ws.roomId}`)
+  global.room_clients.get(ws.roomId!)?.push(uuid)
+  console.log(`room length: ${global.room_clients.get(ws.roomId)?.length}`)
   console.log(`WebSocket 连接已建立, username: ${ws.username}, roomId: ${ws.roomId}`)
+
+  //通知其他客户端拉取房间成员列表
+  global.room_clients.get(ws.roomId)?.forEach( ws_uuid => {
+    if (!global.all_clients.has(ws_uuid)) {
+      console.log("no such client")
+      return
+    }
+    if (global.all_clients.get(ws_uuid)?.username === username) {
+      console.log("no need to send notify to himself")
+      return
+    }
+    console.log(`send notify to ${global.all_clients.get(ws_uuid)!.username}`)
+    global.all_clients.get(ws_uuid)!.send("members")
+  })
 
   // 处理 WebSocket 消息
   ws.on('message', (message: string) => {
@@ -83,10 +98,12 @@ wss.on('connection', async (ws: WebSocket, req: WebSocketRequest) => {
 
   // 处理 WebSocket 连接关闭
   ws.on('close', () => {
+    global.all_clients.delete(ws.uuid)
+    global.room_clients.get(ws.roomId!)?.splice(global.room_clients.get(ws.roomId!)!.indexOf(ws.uuid), 1)
     if (!ws.username && !ws.roomId) {
       global.user_wsconnections.delete({username: ws.username!, roomId: ws.roomId!})
     }
-    console.log('WebSocket 连接已关闭')
+    console.log(`WebSocket 连接已关闭, username: ${ws.username}, roomId: ${ws.roomId}`)
   })
 
 })

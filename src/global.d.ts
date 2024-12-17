@@ -46,7 +46,7 @@ declare global {
 
     const cookie_secret = "123456"
 
-    var user_data: {username: string, password: string, email: string}[]
+    // var user_data: {username: string, password: string, email: string}[]
 
 }
 

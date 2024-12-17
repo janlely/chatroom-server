@@ -5,7 +5,6 @@ const db = new sqlite3.Database('chat.db')
 const router = express.Router()
 
 router.post("/send", (req: Request, res: Response) => {
-    console.log(`body: ${req.body}, header: ${JSON.stringify(req.headers)}`)
     const message = req.body as Message
     const roomId = req.get("roomid")!
     const username = (req as unknown as CustomRequest).context.username

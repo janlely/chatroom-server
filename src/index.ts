@@ -31,8 +31,8 @@ app.use(/^\/(?!api\/login$).+$/, (req, res, next) => {
 app.get("/", (req: Request, res: Response) => {
   res.status(404)
 })
+app.use("/api", express.json())
 app.use("/api/login", login)
-app.use("/api/chat", express.json())
 app.use("/api/chat", chat)
 
 const server = http.createServer(app);

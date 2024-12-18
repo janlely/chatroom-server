@@ -16,7 +16,7 @@ router.post("/", (req: Request, res: Response) => {
   let optToken = req.body.token ?? ''
   
   
-  db.get('select * from users where username = ? and password = ?', username, (err, user_data: any) => {
+  db.get('select * from users where username = ?', username, (err, user_data: any) => {
     if (err) {
       console.error('内部错误:', err)
       res.status(500).send('内部错误')

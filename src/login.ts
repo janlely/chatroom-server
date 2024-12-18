@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express"
 // import {formidable} from "formidable"
 import { sha256 } from 'js-sha256'
-import * as common from "./common"
+import {optVerify, generateRandomString} from "./common"
 import sqlite3 from "sqlite3"
 
 const router = express.Router()
@@ -13,6 +13,7 @@ router.post("/", (req: Request, res: Response) => {
   let username = req.body.username ?? ''
   let password = req.body.password ?? ''
   let roomId = req.body.roomId ?? '' 
+  let optToken = req.body.token ?? ''
   
   
   db.get('select * from users where username = ? and password = ?', [username, password], (err, user_data: any) => {
@@ -21,12 +22,13 @@ router.post("/", (req: Request, res: Response) => {
       res.status(500).send('内部错误')
       return
     }
-    if (!user_data) {
-      res.status(401).send('用户名或密码错误')
+    console.log("user_data: ", user_data)
+    if (!user_data || !optVerify(optToken, user_data.secret)) {
+      res.status(401).send('登录验证失败')
       return
     }
 
-    let token = common.generateRandomString(32) 
+    let token = generateRandomString(32) 
     global.user_session.set(username, {token: token, username: username})
 
     const cookieData = JSON.stringify({

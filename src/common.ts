@@ -1,5 +1,5 @@
 import { sha256 } from 'js-sha256'
-
+import speakeasy from 'speakeasy';
 export function authenticate(cookies: {[key: string]: any}): string | undefined{
     if (!cookies.hackchat) {
         return undefined
@@ -28,4 +28,13 @@ export function generateRandomString(length: number): string {
     }
 
     return result;
+}
+
+
+export function optVerify(token: string, secret: any): any {
+    return speakeasy.totp.verify({
+        secret: secret,
+        encoding: 'base32',
+        token: token
+    });
 }

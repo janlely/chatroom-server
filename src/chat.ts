@@ -61,7 +61,7 @@ router.post("/pull", (req: Request, res: Response) => {
                     messageId: row.message_id,
                     type: row.message_type,
                     data: row.message,
-                    sender: row.username == username ? "me" : username
+                    sender: row.username == username ? "me" : row.username
                 },
                 send: username === row.username,
                 success: true,

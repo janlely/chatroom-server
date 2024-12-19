@@ -99,7 +99,8 @@ wss.on('connection', async (ws: WebSocket, req: WebSocketRequest) => {
   // 处理 WebSocket 连接关闭
   ws.on('close', () => {
     global.all_clients.delete(ws.uuid)
-    global.room_clients.get(ws.roomId!)?.splice(global.room_clients.get(ws.roomId!)!.indexOf(ws.uuid), 1)
+    global.room_clients.set(ws.roomId!,
+      global.room_clients.get(ws.roomId!)?.filter(ws_uuid => global.all_clients.has(ws_uuid)) ?? new Array<string>())
     if (!ws.username && !ws.roomId) {
       global.user_wsconnections.delete({username: ws.username!, roomId: ws.roomId!})
     }

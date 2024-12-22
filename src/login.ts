@@ -40,7 +40,9 @@ router.post("/", (req: Request, res: Response) => {
     const signed = sha256(cookieData)
     console.log("signed ", signed)
     res.cookie('hackchat', {data: Buffer.from(cookieData).toString("hex"), sign: signed})
-    res.redirect(`/chat?${roomId}`)
+    res.send({
+      imgApiKey: 'e6f9d7c24cedee8140680e140fa08f38'
+    })
   })
 })
 

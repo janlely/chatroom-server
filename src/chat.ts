@@ -71,15 +71,15 @@ router.post("/pull", (req: Request, res: Response) => {
     }
     if (uuid === 0) {
         console.log("query condition 1")
-        db.all('select * from (select * from messages where room_id = ? order by uuid desc limit 20) order by uuid asc', roomId, resultHandler)
+        db.all('select * from (select * from messages where room_id = ? AND username != ? order by uuid desc limit 20) order by uuid asc', [roomId, username], resultHandler)
         return
     }
     if (direction === "before") {
         console.log("query condition 2")
-        db.all('select * from messages where room_id = ? and uuid < ? order by uuid asc limit 20', roomId, uuid, resultHandler)
+        db.all('select * from messages where room_id = ? and uuid < ? and username != ? order by uuid asc limit 20', [roomId, uuid, username], resultHandler)
     } else {
         console.log("query condition 3")
-        db.all('select * from messages where room_id = ? and uuid > ? order by uuid asc limit 20', roomId, uuid, resultHandler)
+        db.all('select * from messages where room_id = ? and uuid > ? and username != ? order by uuid asc limit 20', [roomId, uuid, username], resultHandler)
     }
 
 

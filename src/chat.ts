@@ -44,6 +44,7 @@ router.get("/ack", (req: Request, res: Response) => {
     const roomId = req.get("roomid")!
     const username = (req as unknown as CustomRequest).context.username
     const uuid = req.query.uuid
+    console.log(`ack roomId: ${roomId}, username: ${username}, uuid: ${uuid}`)
     db.run('INSERT OR REPLACE INTO user_uuid (room_id, username, uuid) VALUES (?, ?, ?)', [roomId, username, uuid], (err) => {
         console.log("err: ", err)
     })
@@ -81,7 +82,7 @@ router.get("/pull", (req: Request, res: Response) => {
         if (row) {
             uuid = row.uuid
         }
-        console.log('uuid: ', uuid)
+        console.log('uuid: ', JSON.stringify)
         if (uuid === 0) {
             db.all('select * from (select * from messages where room_id = ? AND username != ? order by uuid desc limit 100) order by uuid asc', [roomId, username], resultHandler)
         } else {

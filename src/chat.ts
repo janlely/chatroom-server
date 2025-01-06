@@ -4,6 +4,13 @@ import sqlite3 from "sqlite3"
 const db = new sqlite3.Database('chat.db')
 const router = express.Router()
 
+const SELECT_MESSAGE = `
+SELECT t1.message_id, t1.message_type, t1.message, t1.username, t1.uuid, t2.avatar
+FROM messages t1
+LEFT JOIN users t2
+ON t1.usernma = t2.username
+`
+
 router.post("/send", (req: Request, res: Response) => {
     const message = req.body as Message
     const roomId = req.get("roomid")!
@@ -72,7 +79,8 @@ router.get("/pull", (req: Request, res: Response) => {
                 },
                 send: username === row.username,
                 success: true,
-                uuid: row.uuid
+                uuid: row.uuid,
+                avatar: row.avatar
             }
         }))
     }
@@ -84,9 +92,11 @@ router.get("/pull", (req: Request, res: Response) => {
         }
         console.log('uuid: ', uuid)
         if (uuid === 0) {
-            db.all('select * from messages where room_id = ? AND username != ? order by uuid desc limit 100', [roomId, username], resultHandler)
+            // db.all('select * from messages where room_id = ? AND username != ? order by uuid desc limit 100', [roomId, username], resultHandler)
+            db.all(`${SELECT_MESSAGE} WHERE t1.room_id = ? AND t1.username != ? order by t1.uuid desc limit 100`, [roomId, username], resultHandler)
         } else {
-            db.all('select * from messages where room_id = ? and uuid > ? and username != ? order by uuid desc limit 100', [roomId, uuid, username], resultHandler)
+            // db.all('select * from messages where room_id = ? and uuid > ? and username != ? order by uuid desc limit 100', [roomId, uuid, username], resultHandler)
+            db.all(`${SELECT_MESSAGE} WHERE t1.room_id = ? and t1.uuid > ? and t1.username != ? order by t1.uuid desc limit 100`, [roomId, uuid, username], resultHandler)
         }
     })
 })

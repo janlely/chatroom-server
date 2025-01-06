@@ -44,7 +44,7 @@ router.get("/ack", (req: Request, res: Response) => {
     const roomId = req.get("roomid")!
     const username = (req as unknown as CustomRequest).context.username
     const uuid = req.query.uuid
-    db.run('UPDATE user_uuid SET uuid = ? WHERE room_id = ? and username = ?', [uuid, roomId, username], (err) => {
+    db.run('INSERT OR REPLACE INTO user_uuid (room_id, username, uuid) VALUES (?, ?, ?)', [roomId, username, uuid], (err) => {
         console.log("err: ", err)
     })
     res.status(200).send("success")

@@ -40,6 +40,55 @@ router.post("/send", (req: Request, res: Response) => {
     })
 })
 
+router.get("/ack", (req: Request, res: Response) => {
+    const roomId = req.get("roomid")!
+    const username = (req as unknown as CustomRequest).context.username
+    const uuid = req.query.uuid
+    db.run('UPDATE user_uuid SET uuid = ? WHERE room_id = ? and username = ?', [uuid, roomId, username], (err) => {
+        console.log("err: ", err)
+    })
+    res.status(200).send("success")
+})
+
+router.get("/pull", (req: Request, res: Response) => {
+    const roomId = req.get("roomid")!
+    const username = (req as unknown as CustomRequest).context.username
+
+    const resultHandler = (err: Error | null, rows: any[]) => {
+        if (err) {
+            console.error('查询消息失败:', err)
+            res.status(500).send('查询消息失败')
+            return
+        }
+        res.status(200).send(rows.map(row => {
+            console.log("row: ", row)
+            return {
+                message: {
+                    messageId: row.message_id,
+                    type: row.message_type,
+                    data: row.message,
+                    sender: row.username
+                },
+                send: username === row.username,
+                success: true,
+                uuid: row.uuid
+            }
+        }))
+    }
+
+    db.get('select uuid from user_uuid where room_id = ? and username = ?', [roomId, username], (err, row: any) => {
+        let uuid = 0;
+        if (row) {
+            uuid = row.uuid
+        }
+        if (uuid === 0) {
+            db.all('select * from (select * from messages where room_id = ? AND username != ? order by uuid desc limit 100) order by uuid asc', [roomId, username], resultHandler)
+        } else {
+            db.all('select * from messages where room_id = ? and uuid > ? and username != ? order by uuid asc limit 20', [roomId, uuid, username], resultHandler)
+        }
+    })
+})
+
 
 router.post("/pull", (req: Request, res: Response) => {
     console.log(`body: ${req.body}, header: ${JSON.stringify(req.headers)}`)

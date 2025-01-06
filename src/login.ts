@@ -41,7 +41,8 @@ router.post("/", (req: Request, res: Response) => {
     console.log("signed ", signed)
     res.cookie('hackchat', {data: Buffer.from(cookieData).toString("hex"), sign: signed})
     res.send({
-      imgApiKey: 'e6f9d7c24cedee8140680e140fa08f38'
+      imgApiKey: 'e6f9d7c24cedee8140680e140fa08f38',
+      avatar: user_data.avatar
     })
   })
 })

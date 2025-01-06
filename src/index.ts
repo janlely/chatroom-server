@@ -90,8 +90,8 @@ wss.on('connection', async (ws: WebSocket, req: WebSocketRequest) => {
 
   // 处理 WebSocket 消息
   ws.on('message', (message: string) => {
-    console.log('received: ', message)
-    if (message === "ping") {
+    console.log('received: ', message.toString())
+    if (message.toString() === "ping") {
       ws.send("pong")
       return
     }

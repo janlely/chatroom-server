@@ -140,8 +140,6 @@ router.post("/pull", (req: Request, res: Response) => {
 router.post("/updateImg", (req: Request, res: Response) => {
     const uuid = req.body.uuid
     const url = req.body.url
-    const roomId = req.get("roomid")!
-    const username = (req as unknown as CustomRequest).context.username
     
     db.run('UPDATE messages SET message = ? WHERE uuid = ?', [url, uuid], (err) => {
         if (err) {

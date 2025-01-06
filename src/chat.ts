@@ -8,7 +8,7 @@ const SELECT_MESSAGE = `
 SELECT t1.message_id, t1.message_type, t1.message, t1.username, t1.uuid, t2.avatar
 FROM messages t1
 LEFT JOIN users t2
-ON t1.usernma = t2.username
+ON t1.username = t2.username
 `
 
 router.post("/send", (req: Request, res: Response) => {

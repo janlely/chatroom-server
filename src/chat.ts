@@ -82,11 +82,11 @@ router.get("/pull", (req: Request, res: Response) => {
         if (row) {
             uuid = row.uuid
         }
-        console.log('uuid: ', JSON.stringify)
+        console.log('uuid: ', uuid)
         if (uuid === 0) {
-            db.all('select * from (select * from messages where room_id = ? AND username != ? order by uuid desc limit 100) order by uuid asc', [roomId, username], resultHandler)
+            db.all('select * from messages where room_id = ? AND username != ? order by uuid desc limit 100', [roomId, username], resultHandler)
         } else {
-            db.all('select * from messages where room_id = ? and uuid > ? and username != ? order by uuid asc limit 20', [roomId, uuid, username], resultHandler)
+            db.all('select * from messages where room_id = ? and uuid > ? and username != ? order by uuid desc limit 100', [roomId, uuid, username], resultHandler)
         }
     })
 })

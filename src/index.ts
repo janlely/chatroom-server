@@ -62,7 +62,7 @@ wss.on('connection', async (ws: WebSocket, req: WebSocketRequest) => {
   const uuid = uuidv4()
   ws.username = username
   ws.uuid = uuid
-  ws.roomId = new URL(req.url!, `http://${req.headers.host}`).search.substring(1)
+  ws.roomId = decodeURIComponent(new URL(req.url!, `http://${req.headers.host}`).search.substring(1))
   global.all_clients.set(uuid, ws)
   global.user_wsconnections.set({username: ws.username!, roomId: ws.roomId!}, uuid)
   if (!global.room_clients.has(ws.roomId!)) {

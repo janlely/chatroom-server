@@ -13,7 +13,7 @@ ON t1.username = t2.username
 
 router.post("/send", (req: Request, res: Response) => {
     const message = req.body as Message
-    const roomId = req.get("roomid")!
+    const roomId = decodeURIComponent(req.get("roomid")!)
     const username = (req as unknown as CustomRequest).context.username
     
     const uuid = Date.now()
@@ -48,7 +48,7 @@ router.post("/send", (req: Request, res: Response) => {
 })
 
 router.get("/ack", (req: Request, res: Response) => {
-    const roomId = req.get("roomid")!
+    const roomId = decodeURIComponent(req.get("roomid")!)
     const username = (req as unknown as CustomRequest).context.username
     const uuid = req.query.uuid
     console.log(`ack roomId: ${roomId}, username: ${username}, uuid: ${uuid}`)
@@ -106,7 +106,7 @@ router.post("/pull", (req: Request, res: Response) => {
     console.log(`body: ${req.body}, header: ${JSON.stringify(req.headers)}`)
     const uuid = req.body.uuid
     const direction = req.body.direction
-    const roomId = req.get("roomid")!
+    const roomId = decodeURIComponent(req.get("roomid")!)
     const username = (req as unknown as CustomRequest).context.username
     
     const resultHandler = (err: Error | null, rows: any[]) => {
@@ -163,7 +163,7 @@ router.post("/updateImg", (req: Request, res: Response) => {
 
 
 router.get("/members", (req: Request, res: Response) => {
-    const roomId = req.get("roomid")!
+    const roomId = decodeURIComponent(req.get("roomid")!)
     const username = (req as unknown as CustomRequest).context.username
     const result = new Array()
     global.room_clients.get(roomId)?.forEach( ws_uuid => {

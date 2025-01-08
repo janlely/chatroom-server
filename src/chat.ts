@@ -59,7 +59,7 @@ router.get("/ack", (req: Request, res: Response) => {
 })
 
 router.get("/pull", (req: Request, res: Response) => {
-    const roomId = req.get("roomid")!
+    const roomId = decodeURIComponent(req.get("roomid")!)
     const username = (req as unknown as CustomRequest).context.username
 
     const resultHandler = (err: Error | null, rows: any[]) => {

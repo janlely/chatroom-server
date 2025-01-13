@@ -47,6 +47,35 @@ router.post("/send", (req: Request, res: Response) => {
     })
 })
 
+router.get("/recall", (req: Request, res: Response) => {
+    const roomId = decodeURIComponent(req.get("roomid")!)
+    const username = (req as unknown as CustomRequest).context.username
+    const uuid = req.query.uuid
+    console.log(`recall roomId: ${roomId}, username: ${username}, uuid: ${uuid}`)
+    // 1 for recalled
+    db.run('UPDATE messages SET state = 1 WHERE uuid = ?', [uuid], (err) => {
+        if (err) {
+            console.error('撤回消息失败:', err)
+            res.status(500).send('撤回消息失败')
+            return
+        }
+    })
+    global.room_clients.get(roomId)?.forEach(ws_uuid => {
+        console.log("ws_uuid: ", ws_uuid)
+        if (!global.all_clients.has(ws_uuid)) {
+            console.log("no such client")
+            return
+        }
+        if (global.all_clients.get(ws_uuid)?.username === username) {
+            console.log("no need to send notify to himself")
+            return
+        }
+        console.log(`send notify to ${global.all_clients.get(ws_uuid)!.username}`)
+        global.all_clients.get(ws_uuid)!.send(`recall#${uuid}`)
+    })
+    res.status(200).send("success")
+})
+
 router.get("/ack", (req: Request, res: Response) => {
     const roomId = decodeURIComponent(req.get("roomid")!)
     const username = (req as unknown as CustomRequest).context.username
@@ -93,10 +122,10 @@ router.get("/pull", (req: Request, res: Response) => {
         console.log('uuid: ', uuid)
         if (uuid === 0) {
             // db.all('select * from messages where room_id = ? AND username != ? order by uuid desc limit 100', [roomId, username], resultHandler)
-            db.all(`${SELECT_MESSAGE} WHERE t1.room_id = ? AND t1.username != ? order by t1.uuid desc limit 100`, [roomId, username], resultHandler)
+            db.all(`${SELECT_MESSAGE} WHERE t1.room_id = ? AND t1.username != ? AND state = 0 order by t1.uuid desc limit 100`, [roomId, username], resultHandler)
         } else {
             // db.all('select * from messages where room_id = ? and uuid > ? and username != ? order by uuid desc limit 100', [roomId, uuid, username], resultHandler)
-            db.all(`${SELECT_MESSAGE} WHERE t1.room_id = ? and t1.uuid > ? and t1.username != ? order by t1.uuid desc limit 100`, [roomId, uuid, username], resultHandler)
+            db.all(`${SELECT_MESSAGE} WHERE t1.room_id = ? and t1.uuid > ? and t1.username != ? AND state = 0 order by t1.uuid desc limit 100`, [roomId, uuid, username], resultHandler)
         }
     })
 })
@@ -132,15 +161,15 @@ router.post("/pull", (req: Request, res: Response) => {
     }
     if (uuid === 0) {
         console.log("query condition 1")
-        db.all('select * from (select * from messages where room_id = ? AND username != ? order by uuid desc limit 20) order by uuid asc', [roomId, username], resultHandler)
+        db.all('select * from (select * from messages where room_id = ? AND username != ? AND state = 0 order by uuid desc limit 20) order by uuid asc', [roomId, username], resultHandler)
         return
     }
     if (direction === "before") {
         console.log("query condition 2")
-        db.all('select * from messages where room_id = ? and uuid < ? and username != ? order by uuid asc limit 20', [roomId, uuid, username], resultHandler)
+        db.all('select * from messages where room_id = ? and uuid < ? and username != ? AND state = 0 order by uuid asc limit 20', [roomId, uuid, username], resultHandler)
     } else {
         console.log("query condition 3")
-        db.all('select * from messages where room_id = ? and uuid > ? and username != ? order by uuid asc limit 20', [roomId, uuid, username], resultHandler)
+        db.all('select * from messages where room_id = ? and uuid > ? and username != ? AND state = 0 order by uuid asc limit 20', [roomId, uuid, username], resultHandler)
     }
 
 

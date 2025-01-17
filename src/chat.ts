@@ -17,7 +17,7 @@ router.post("/send", (req: Request, res: Response) => {
     const username = (req as unknown as CustomRequest).context.username
     
     const uuid = Date.now()
-    db.run('INSERT INTO messages (username, room_id, message_type, message, message_id, uuid, quote) VALUES (?, ?, ?, ?, ?, ?)',
+    db.run('INSERT INTO messages (username, room_id, message_type, message, message_id, uuid, quote) VALUES (?, ?, ?, ?, ?, ?, ?)',
         [username, roomId, message.type, message.data, message.messageId, uuid, message.quote ?? 0], (err) => {
         if (err) {
             console.error('插入消息失败:', err)

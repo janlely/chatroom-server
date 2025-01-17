@@ -26,7 +26,8 @@ declare global {
         messageId: number,
         type: MessageType,
         data: string,
-        sender: string
+        sender: string,
+        quote?: number
     }
 
     interface UserSession {

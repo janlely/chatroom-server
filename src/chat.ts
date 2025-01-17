@@ -5,7 +5,7 @@ const db = new sqlite3.Database('chat.db')
 const router = express.Router()
 
 const SELECT_MESSAGE = `
-SELECT t1.message_id, t1.message_type, t1.message, t1.username, t1.uuid, t2.avatar
+SELECT t1.message_id, t1.message_type, t1.message, t1.username, t1.uuid, t2.avatar, t1.quote
 FROM messages t1
 LEFT JOIN users t2
 ON t1.username = t2.username
@@ -17,8 +17,8 @@ router.post("/send", (req: Request, res: Response) => {
     const username = (req as unknown as CustomRequest).context.username
     
     const uuid = Date.now()
-    db.run('INSERT INTO messages (username, room_id, message_type, message, message_id, uuid) VALUES (?, ?, ?, ?, ?, ?)',
-        [username, roomId, message.type, message.data, message.messageId, uuid], (err) => {
+    db.run('INSERT INTO messages (username, room_id, message_type, message, message_id, uuid, quote) VALUES (?, ?, ?, ?, ?, ?)',
+        [username, roomId, message.type, message.data, message.messageId, uuid, message.quote ?? 0], (err) => {
         if (err) {
             console.error('插入消息失败:', err)
             res.status(500).send('插入消息失败')
@@ -109,7 +109,8 @@ router.get("/pull", (req: Request, res: Response) => {
                 send: username === row.username,
                 success: true,
                 uuid: row.uuid,
-                avatar: row.avatar
+                avatar: row.avatar,
+                quote: row.quote
             }
         }))
     }

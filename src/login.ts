@@ -10,7 +10,7 @@ router.get("/qrcode", (req: Request, res: Response) => {
   let chanllengeId = generateRandomString(128) 
   global.user_chanllenge_ids.add(chanllengeId)
   res.status(200).send({
-    qrcode: `https://talk.janlely.com/auth?chanllengeId=${chanllengeId}`
+    qrcode: `chanllengeId:${chanllengeId}`
   })
 })
 

@@ -32,13 +32,13 @@ function authInterceptor(req: Request, res: Response, next: NextFunction) {
 // });
 app.use('/api/chat', authInterceptor)
 app.use('/api/auth', authInterceptor)
-app.get("/", (req: Request, res: Response) => {
-  res.status(404)
-})
 app.use("/api", express.json())
 app.use("/api/login", login)
 app.use("/api/chat", chat)
 app.use("/api/auth", auth)
+app.get("/", (req: Request, res: Response) => {
+  res.status(404)
+})
 
 const server = http.createServer(app);
 // let wsCookieParser = cookieParser()

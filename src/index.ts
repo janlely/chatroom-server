@@ -60,8 +60,8 @@ wss.on('connection', async (ws: WebSocket, req: WebSocketRequest) => {
   }
 
   const uuid = uuidv4()
-  ws.username = authRes.username
-  ws.platform = authRes.platform
+  ws.username = authRes!.username
+  ws.platform = authRes!.platform
   ws.uuid = uuid
   ws.roomId = decodeURIComponent(new URL(req.url!, `http://${req.headers.host}`).search.substring(1))
   global.all_clients.set(uuid, ws)
@@ -81,7 +81,7 @@ wss.on('connection', async (ws: WebSocket, req: WebSocketRequest) => {
       console.log("no such client")
       return
     }
-    if (global.all_clients.get(ws_uuid)?.username === authRes.username && global.all_clients.get(ws_uuid)?.platform === ws.platform) {
+    if (global.all_clients.get(ws_uuid)?.username === authRes!.username && global.all_clients.get(ws_uuid)?.platform === ws.platform) {
       console.log("no need to send notify to himself")
       return
     }

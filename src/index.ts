@@ -123,6 +123,7 @@ global.user_wsconnections = new Map()
 global.room_clients = new Map()
 global.all_clients = new Map()
 global.user_chanllenge_data = new Map()
+global.user_chanllenge_ids = new Set()
 
 server.listen(port, () => {
   console.log(`服务器已启动，监听端口 ${port}`)

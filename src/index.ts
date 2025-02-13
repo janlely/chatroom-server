@@ -8,6 +8,7 @@ import chat from "./chat"
 import auth from './auth'
 import * as common from "./common"
 import { v4 as uuidv4 } from 'uuid';
+import cors from 'cors'
 // import { emit } from "process";
 
 dotenv.config();
@@ -16,6 +17,7 @@ const app: Express = express();
 const port = process.env.PORT || 3000;
 
 
+app.use(cors())
 app.use(cookieParser())
 
 

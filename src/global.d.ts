@@ -7,6 +7,7 @@ declare global {
     interface CustomRequest extends Request {
         context: {
             username: string,
+            platform: string
         }
     }
     interface WebSocketRequest extends IncomingMessage {
@@ -33,9 +34,20 @@ declare global {
     interface UserSession {
         token: string,
         username: string,
+        email: string,
+        avatar: string
     }
 
     var user_session: Map<string,UserSession>
+    var user_chanllenge_data: Map<string, UserData>
+    var user_chanllenge_ids: Set<string>
+
+    type UserData = {
+        username: string,
+        email: string,
+        avatar: string,
+        roomId: string
+    }
     type UserRoom = {
         username: string
         roomId: string,
@@ -56,6 +68,7 @@ declare module 'ws' {
     username?: string
     roomId?: string
     uuid: string
+    platform: string
   }
 }
 

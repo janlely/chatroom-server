@@ -20,12 +20,12 @@ app.use(cookieParser())
 
 
 app.use(/^\/(?!api\/login$).+$/, (req, res, next) => {
-  let username = common.authenticate(req.cookies)
-  if (!username){
+  let authRes = common.authenticate(req.cookies)
+  if (!authRes || !authRes.username){
     res.status(401).send('Unauthorized')
     return
   }
-  (req as unknown as CustomRequest).context = {username}
+  (req as unknown as CustomRequest).context = {username: authRes.username, platform: authRes.platform}
   next()
 });
 app.get("/", (req: Request, res: Response) => {
@@ -52,15 +52,16 @@ async function wsCookieParser(req: WebSocketRequest) {
 wss.on('connection', async (ws: WebSocket, req: WebSocketRequest) => {
 
   await wsCookieParser(req)
-  let username = common.authenticate(req.cookies)
-  if (!username) {
+  let authRes = common.authenticate(req.cookies)
+  if (!authRes || !authRes.username) {
       console.log("Unauthorized")
       ws.close(3401, "Unauthorized")
     return
   }
 
   const uuid = uuidv4()
-  ws.username = username
+  ws.username = authRes.username
+  ws.platform = authRes.platform
   ws.uuid = uuid
   ws.roomId = decodeURIComponent(new URL(req.url!, `http://${req.headers.host}`).search.substring(1))
   global.all_clients.set(uuid, ws)
@@ -80,7 +81,7 @@ wss.on('connection', async (ws: WebSocket, req: WebSocketRequest) => {
       console.log("no such client")
       return
     }
-    if (global.all_clients.get(ws_uuid)?.username === username) {
+    if (global.all_clients.get(ws_uuid)?.username === authRes.username && global.all_clients.get(ws_uuid)?.platform === ws.platform) {
       console.log("no need to send notify to himself")
       return
     }
@@ -116,6 +117,7 @@ global.user_session = new Map()
 global.user_wsconnections = new Map()
 global.room_clients = new Map()
 global.all_clients = new Map()
+global.user_chanllenge_data = new Map()
 
 server.listen(port, () => {
   console.log(`服务器已启动，监听端口 ${port}`)

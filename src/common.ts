@@ -1,6 +1,6 @@
 import { sha256 } from 'js-sha256'
 import speakeasy from 'speakeasy';
-export function authenticate(cookies: {[key: string]: any}): string | undefined{
+export function authenticate(cookies: {[key: string]: any}): {username: string, platform: string}| undefined{
     if (!cookies.hackchat) {
         return undefined
     }
@@ -16,7 +16,7 @@ export function authenticate(cookies: {[key: string]: any}): string | undefined{
         console.log("token验证失败: ", cookieData.token)
         return undefined
     }
-    return cookieData.username
+    return {username: cookieData.username, platform: cookieData.platform}
 }
 export function generateRandomString(length: number): string {
     let result = '';

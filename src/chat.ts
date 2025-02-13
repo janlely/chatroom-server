@@ -15,6 +15,7 @@ router.post("/send", (req: Request, res: Response) => {
     const message = req.body as Message
     const roomId = decodeURIComponent(req.get("roomid")!)
     const username = (req as unknown as CustomRequest).context.username
+    const platform = (req as unknown as CustomRequest).context.platform
     
     const uuid = Date.now()
     db.run('INSERT INTO messages (username, room_id, message_type, message, message_id, uuid, quote) VALUES (?, ?, ?, ?, ?, ?, ?)',
@@ -34,7 +35,7 @@ router.post("/send", (req: Request, res: Response) => {
                 console.log("no such client")
                 return
             }
-            if (global.all_clients.get(ws_uuid)?.username === username) {
+            if (global.all_clients.get(ws_uuid)?.username === username && global.all_clients.get(ws_uuid)?.platform === platform) {
                 console.log("no need to send notify to himself")
                 return
             }
@@ -123,10 +124,10 @@ router.get("/pull", (req: Request, res: Response) => {
         console.log('uuid: ', uuid)
         if (uuid === 0) {
             // db.all('select * from messages where room_id = ? AND username != ? order by uuid desc limit 100', [roomId, username], resultHandler)
-            db.all(`${SELECT_MESSAGE} WHERE t1.room_id = ? AND t1.username != ? AND state = 0 order by t1.uuid desc limit 100`, [roomId, username], resultHandler)
+            db.all(`${SELECT_MESSAGE} WHERE t1.room_id = ? AND state = 0 order by t1.uuid desc limit 100`, [roomId, username], resultHandler)
         } else {
             // db.all('select * from messages where room_id = ? and uuid > ? and username != ? order by uuid desc limit 100', [roomId, uuid, username], resultHandler)
-            db.all(`${SELECT_MESSAGE} WHERE t1.room_id = ? and t1.uuid > ? and t1.username != ? AND state = 0 order by t1.uuid desc limit 100`, [roomId, uuid, username], resultHandler)
+            db.all(`${SELECT_MESSAGE} WHERE t1.room_id = ? and t1.uuid > ? AND state = 0 order by t1.uuid desc limit 100`, [roomId, uuid, username], resultHandler)
         }
     })
 })

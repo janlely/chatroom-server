@@ -8,7 +8,9 @@ router.get("/", (req: Request, res: Response) => {
   const username = (req as unknown as CustomRequest).context.username
   const platform = (req as unknown as CustomRequest).context.platform
 
+  console.log(`chanllengeId: ${chanllengeId}, roomId: ${roomId}, username: ${username}, platform: ${platform}`)
   if (!global.user_chanllenge_ids.has(chanllengeId) || platform !== "phone") {
+    console.log("登录授权失败")
     res.status(401).send('登录授权失败')
     return
   }
@@ -20,6 +22,7 @@ router.get("/", (req: Request, res: Response) => {
     avatar: userSession!.avatar,
     roomId: roomId
   })
+  console.log("登录授权成功")
   res.status(200).send('ok')
 })
 

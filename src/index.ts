@@ -1,10 +1,11 @@
-import express, { Express, Request, Response } from "express"
+import express, { Express, NextFunction, Request, Response } from "express"
 import dotenv from "dotenv"
 import http, { IncomingMessage } from "http"
 import { WebSocket } from "ws"
 import cookieParser from "cookie-parser"
 import login from "./login"
 import chat from "./chat"
+import auth from './auth'
 import * as common from "./common"
 import { v4 as uuidv4 } from 'uuid';
 // import { emit } from "process";
@@ -18,8 +19,7 @@ const port = process.env.PORT || 3000;
 app.use(cookieParser())
 
 
-
-app.use(/^\/(?!api\/login$).+$/, (req, res, next) => {
+function authInterceptor(req: Request, res: Response, next: NextFunction) {
   let authRes = common.authenticate(req.cookies)
   if (!authRes || !authRes.username){
     res.status(401).send('Unauthorized')
@@ -27,13 +27,18 @@ app.use(/^\/(?!api\/login$).+$/, (req, res, next) => {
   }
   (req as unknown as CustomRequest).context = {username: authRes.username, platform: authRes.platform}
   next()
-});
+}
+// app.use(/^\/(?!api\/login$).+$/, (req, res, next) => {
+// });
+app.use('/api/chat', authInterceptor)
+app.use('/api/auth', authInterceptor)
 app.get("/", (req: Request, res: Response) => {
   res.status(404)
 })
 app.use("/api", express.json())
 app.use("/api/login", login)
 app.use("/api/chat", chat)
+app.use("/api/auth", auth)
 
 const server = http.createServer(app);
 // let wsCookieParser = cookieParser()
